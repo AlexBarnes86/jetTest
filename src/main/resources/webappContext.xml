@@ -19,6 +19,8 @@
 						http://www.springframework.org/schema/data/jpa http://www.springframework.org/schema/data/jpa/spring-jpa.xsd
 						http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-3.2.xsd">
 	
+	<import resource="securityContext.xml"/>
+	
 	<context:annotation-config/>
 	<context:component-scan base-package="com.toastedbits.jettest.services"/>
 	<context:component-scan base-package="com.toastedbits.jettest.repositories"/>
@@ -26,7 +28,7 @@
 	<bean class="java.net.URI" id="dbUrl">
 		<constructor-arg value="#{systemEnvironment['DATABASE_URL']}"/>
 	</bean>
-
+	
 	<bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource">
 		<!--<property name="url" value="#{ 'jdbc:postgresql://' + @dbUrl.getHost() + ':' + @dbUrl.getPort() + @dbUrl.getPath() }?ssl=true&amp;sslfactory=org.postgresql.ssl.NonValidatingFactory"/>-->
 		<property name="url" value="#{ 'jdbc:postgresql://' + @dbUrl.getHost() + ':' + @dbUrl.getPort() + @dbUrl.getPath() }"/>
@@ -36,21 +38,25 @@
 	
 	<!-- Hibernate session factory -->
 	<!-- Autowire property determines how autowiring is performed, must be one of: default, no, byName, byType, constructor -->
-    <bean id="sessionFactory" class="org.springframework.orm.hibernate4.LocalSessionFactoryBean">
+	<bean id="sessionFactory" class="org.springframework.orm.hibernate4.LocalSessionFactoryBean">
 		<property name="dataSource" ref="dataSource"/>
 		<property name="packagesToScan" value="com.toastedbits.jettest.models"/>
 		<property name="hibernateProperties">
 			<props>
 				<prop key="hibernate.dialect">org.hibernate.dialect.PostgreSQLDialect</prop>
 				<prop key="hibernate.show_sql">true</prop>
-				<prop key="hibernate.hbm2ddl.auto">create-drop</prop>
+				<prop key="hibernate.hbm2ddl.auto">create</prop>
 			</props>
 		</property>
 	</bean>
 	
-    <bean id="transactionManager" class="org.springframework.orm.hibernate4.HibernateTransactionManager">
-        <property name="sessionFactory" ref="sessionFactory"/>
-    </bean>
+	<bean id="transactionManager" class="org.springframework.orm.hibernate4.HibernateTransactionManager">
+		<property name="sessionFactory" ref="sessionFactory"/>
+	</bean>
 	
-    <tx:annotation-driven transaction-manager="transactionManager"/>
+	<tx:annotation-driven transaction-manager="transactionManager"/>
+	
+	<bean id="dbInit" class="com.toastedbits.jettest.launch.InitDB" init-method="start" lazy-init="false"
+		p:adminLogin="admin"
+		p:adminPassword="admin"/>
 </beans>

@@ -1,6 +1,7 @@
 package com.toastedbits.jettest.repositories.impl;
 
 import org.hibernate.Query;
+import org.hibernate.Session;
 import org.hibernate.SessionFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Repository;
@@ -14,17 +15,20 @@ public class StockRepositoryImpl implements StockRepository {
 	@Autowired
 	private SessionFactory sessionFactory;
 	
+	private Session openSession() {
+		return sessionFactory.getCurrentSession();
+	}
+	
 	public void save(Stock stock){
-		sessionFactory.getCurrentSession().save(stock);
-		
+		openSession().save(stock);
 	}
 	
 	public void update(Stock stock){
-		sessionFactory.getCurrentSession().update(stock);
+		openSession().update(stock);
 	}
 	
 	public void delete(Stock stock){
-		sessionFactory.getCurrentSession().delete(stock);
+		openSession().delete(stock);
 	}
 	
 	public Stock findByStockCode(String stockCode){
